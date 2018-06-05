@@ -9,10 +9,10 @@ import FaceFinder
 import cv2
 
 model_path = 'face_model'
-img = cv2.imread("demo.jpg",0)
+img = cv2.imread("image_4.jpg", 0)
 faces,mask = FaceFinder.localize(img,model_path)
-cv2.imshow("faces",faces)
-cv2.imshow("sliding window mask",mask)
-cv2.imshow("input image",img)
+cv2.imshow("faces", faces)
+cv2.imshow("sliding window mask", mask)
+cv2.imshow("input image", cv2.resize(img, (300, 300)))
 cv2.waitKey(0)
 cv2.destroyAllWindows()

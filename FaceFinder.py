@@ -91,7 +91,7 @@ def train_net():
                     batch_size=100,
                     print_epoch=1,
                     save_path=model_path)
-    print "Accuracy:",acc
+    print("Accuracy: {}".format(acc))
     sess.close()
 
 #Basic sliding window detector to find faces
@@ -108,8 +108,8 @@ def localize(img,model_path):
     #Run sliding windows of different sizes
     for bx in range(WIN_MIN,WIN_MAX,WIN_STRIDE):
         by = bx
-        for i in xrange(0, img.shape[1]-bx, X_STEP):
-            for j in xrange(0, img.shape[0]-by, Y_STEP):
+        for i in range(0, img.shape[1]-bx, X_STEP):
+            for j in range(0, img.shape[0]-by, Y_STEP):
                 sub_img = cv2.resize(img[i:i+bx,j:j+by],face_ds.IN_SIZE)
                 X = sub_img.reshape((1,tfac.dim_prod(face_ds.IN_SIZE)))
                 out = y.eval(session=sess,feed_dict={x_hold:X,keep_prob:1})[0]
@@ -118,5 +118,25 @@ def localize(img,model_path):
 
     sess.close()
     mask = np.uint8(255*mask/np.max(mask))
-    faces = img*(cv2.threshold(cv2.blur(mask,BLUR_DIM),0,255,cv2.THRESH_OTSU)[1]/255)
-    return (faces,mask)
+    im2, contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if len(contours) > 0:
+        areas = [cv2.contourArea(c) for c in contours]
+        max_index = np.argmax(areas)
+        cnts = contours[max_index]
+        cv2.drawContours(mask, [cnts], 0, (0, 255, 0), 3)
+        x, y, w, h = cv2.boundingRect(cnts)
+        rectangle = cv2.rectangle(mask, (x, y), (x+w, y+h), (0,255,0), 3)
+
+    output = img.copy()
+    # blur = cv2.blur(mask, BLUR_DIM)
+    # rectangle = cv2.rectangle(mask,500,500,color='red')
+    # cv2.imshow('bluring', rectangle)
+    # blur = cv2.GaussianBlur(mask, BLUR_DIM, 0)
+
+    cv2.addWeighted(rectangle, 0.5, output, 0.5,
+                    0, output)
+
+    # faces = img*(cv2.threshold(rectangle,127,255,cv2.THRESH_OTSU)[1])
+    # faces = img * (cv2.threshold(cv2.blur(mask, BLUR_DIM), 0, 255, cv2.THRESH_OTSU)[1] / 255
+    # return (faces,mask)
+    return (output, mask)

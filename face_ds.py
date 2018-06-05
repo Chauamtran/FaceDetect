@@ -5,8 +5,8 @@ import cv2
 import random
 import requests
 
-FACE_PATH = "/home/prithvi/dsets/Faces/positive/"
-NON_FACE_PATH = "/home/prithvi/dsets/Faces/negative/"
+FACE_PATH = "./dsets/Faces/positive/"
+NON_FACE_PATH = "./dsets/Faces/negative/"
 IN_SIZE = (32,32)   #Input dimensions of image for the network
 SNAP_COUNT = 5      #Number of random snapshots per non-face image
 MIN_LEN = 10        #Minimum length for the ranom snaphsots of non-faces
